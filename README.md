@@ -1,2 +1,2 @@
-# FastHashTable
- hash table + SSE optimization
+# sample
+ Sample new project
