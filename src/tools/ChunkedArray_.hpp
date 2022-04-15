@@ -99,13 +99,13 @@ public:
     }
 
 private:
-    bool AllocateChunk(size_t i) const noexcept {
+    bool AllocateChunk(size_t i) const {
         assert(chunks_ != nullptr);
 
-        chunks_[i] = new T[kChunkSize];
+        chunks_[i] = new(std::nothrow) T[kChunkSize];
 
         if (chunks_[i] == nullptr) {
-            // TODO: exeptions
+            // TODO: exceptions
             return false;
         }
 

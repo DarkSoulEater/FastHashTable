@@ -116,6 +116,13 @@ public:
 
     void Erase(size_t pos) noexcept {}
 
+    int Find(const T& elem) const noexcept {
+        for (size_t i = 1; i < capacity_; ++i) {
+            if (data_[i] == elem) return i;
+        }
+        return 0;
+    }
+
     void Dump() const noexcept {
         std::cerr << "List DUMP:\n";
         std::cerr << "Capacity = " << capacity_ << "\n";

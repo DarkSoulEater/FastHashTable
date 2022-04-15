@@ -7,21 +7,9 @@
 
 struct alignas(32) StringAVX;
 
-enum class HashFunction {
-    HashZero,
-    HashOneASCII,
-    HashSumASCII,
-    HashLenght,
-    HashSumRoll,
-    HashPolynom,
-    HashCRC32
-};
-
 // Hash table for rows up to 32 in length
 class HashTable {
 public:
-    HashTable();
-    HashTable(HashFunction eFunction);
     HashTable(size_t (*HashFunc)(const char*));
 
     ~HashTable();
@@ -30,11 +18,16 @@ public:
 
     void Erase(const char* str, size_t len) noexcept;
 
+    bool Find(const char* str, size_t len) const noexcept;
+
     void Dump() const noexcept;
 
     void PrintStatistics() const noexcept;
     void CreateOccupancyStateCSV(const char* file_name, char separator = ',') const noexcept;
-    
+
+    inline void* GetHash() const noexcept { return (void*) HashFunc_; }
+
+    inline size_t Size() const noexcept { return size_; }
 
 private:
     ChunkedArray_<List<StringAVX>*> data_;
