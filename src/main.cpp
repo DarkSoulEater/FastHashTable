@@ -7,62 +7,72 @@
 #include <string.h>
 #include <assert.h>
 
+#include "Buffer.hpp"
 #include "ChunkedArray_.hpp"
 #include "HashTable.hpp"
 #include "List.hpp"
 
-static size_t Logi2(size_t digit) {
-    assert(digit != 0 && "The number must be an exact power of two");
-
-    size_t i = 0;
-    while (!(digit & 1)) {
-        ++i;
-        digit >>= 1;
+// Сreates a set of row distribution data in CSV format for all standard hash-function
+void CreateHashTableStatCSV(const char* file_name) {
+    Buffer buffer(file_name);
+    char* data = (char*) buffer.GetData();
+    if (data == nullptr) {
+        std::cerr << "It was not possible to read the data from the file\n";
+        return;
     }
 
-    assert(digit == 1 && "The number must be an exact power of two");
+    HashTable tables[] = {
+        HashTable(HashFunction::HashZero),
+        HashTable(HashFunction::HashOneASCII),
+        HashTable(HashFunction::HashSumASCII),
+        HashTable(HashFunction::HashLenght),
+        HashTable(HashFunction::HashSumRoll),
+        HashTable(HashFunction::HashPolynom),
+        HashTable(HashFunction::HashCRC32)
+    };
+    
+    for (size_t len = 0; *data != '\0'; ++len) {
+        if (std::ispunct(data[len]) || std::isspace(data[len])) {
+            if (len > 0) {
+                for (size_t i = 0; i < sizeof(tables) / sizeof(HashTable); ++i) {
+                    tables[i].Insert(data, len);
+                }
+            }
 
-    return i;
+            data += len + 1;
+            len = -1; // All OK
+        }
+    }
+
+    tables[0].CreateOccupancyStateCSV("doc/stat_hash_zero.csv", ';');
+    tables[1].CreateOccupancyStateCSV("doc/stat_hash_one_ascii.csv", ';');
+    tables[2].CreateOccupancyStateCSV("doc/stat_hash_sum_ascii.csv", ';');
+    tables[3].CreateOccupancyStateCSV("doc/stat_hash_lenght.csv", ';');
+    tables[4].CreateOccupancyStateCSV("doc/stat_hash_sum_roll.csv", ';');
+    tables[5].CreateOccupancyStateCSV("doc/stat_hash_polynom.csv", ';');
+    tables[6].CreateOccupancyStateCSV("doc/stat_hash_crc32.csv", ';');
 }
 
-inline void Memcpy(void* dst, const void* src, size_t size) {
-    while (size > sizeof(size_t)) {
-        *(size_t*)dst = *(const size_t*)src;
-        size -= sizeof(size_t);
+static size_t HashSumRoll(const char* val) {
+    assert(val);
+    size_t ans = val[0];
+    for (size_t i = 0; i < 32 && val[i]; ++i) {
+        ans = ((ans >> 1) | (ans << 63)) ^ val[i];
     }
-    
-    while (size > sizeof(unsigned)) {
-        *(unsigned*)dst = *(const unsigned*)src;
-        size -= sizeof(unsigned);
-    }
-    
-    while (size > sizeof(char)) {
-        *(char*)dst = *(const char*)src;
-        size -= sizeof(char);
-    }
+    return ans;
 }
 
-struct alignas(32) String {
-    char str[16] = "123123";
-    //int a;
-
-    //String() : str("1231") {}
-
-    friend std::ostream& operator<< (std::ostream &out, const String &str) {
-        out << str.str;
-        //out << "OK";
-        return out;
-    }
-};
-
+uint64_t rollHashCode(char* str) {
+  uint64_t hash = str[0];
+  while (*str) {
+      hash = ((hash >> 1) | (hash << 63)) ^ *(str++);
+  }
+  return hash;
+}
 
 int main() {
-    // std::ifstream file("assets/text/0.txt");
-    std::ifstream file("C:/Users/eleno/C++/ToolsLib/assets/text/romeo-i-dzhuletta.txt");
-    if (!file.is_open()) {
-        return 0;
-    }
-
+    CreateHashTableStatCSV("assets/text/romeo-i-dzhuletta.txt");
+/*
     HashTable ht;
     std::string s;
     size_t cnt = 0;

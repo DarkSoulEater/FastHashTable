@@ -30,7 +30,7 @@ private:
 
     static constexpr size_t kTypeSize = sizeof(T);
     //static constexpr size_t kTypeSizeLog2 = Log2_(kTypeSize);
-    static constexpr size_t kChunkSize = 64; //4096;
+    static constexpr size_t kChunkSize = 4096;
     static constexpr size_t kChunkSizeLog2 = Log2_(kChunkSize);
 
 public:

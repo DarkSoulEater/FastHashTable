@@ -16,7 +16,7 @@ BIN_DIR = bin
 
 # Settings
 #SFML = INC
-#SSE = INC
+SSE = INC
 
 # Set include path
 CXXFLAGS += -I$(CURDIR)\src
