@@ -21,12 +21,6 @@ static size_t ToNearSimple(size_t val) {
 
 // --------------------String for AVX (alignas 32)-------------------
 
-    void Print(char* t) {
-        for (size_t i = 0; i < 32; ++i) {
-            std::cout << (int)t[i] << " ";
-        }
-    }
-
 struct alignas(32) StringAVX {
     char data_[32] = {};
 
@@ -54,7 +48,7 @@ struct alignas(32) StringAVX {
 // --------------------------HashTable-------------------------------
 
 HashTable::HashTable(size_t (*HashFunc)(const char*)) : capacity_(0), size_(0), occupancy_(0), HashFunc_(HashFunc) {
-    data_.ReserveChunk(1);
+    data_.ReserveChunk(32);
     capacity_ = ToNearSimple(data_.GetCapacity());
     for (size_t i = 0; i < capacity_; ++i) {
         data_[i] = nullptr;
@@ -73,8 +67,8 @@ void HashTable::Insert(const char* str, size_t len) noexcept {
     memcpy(strAVX.data_, str, len);
 
     size_t ind = HashFunc_(strAVX.data_) % capacity_;
-    if (data_[ind] == nullptr) data_[ind] = new List<StringAVX>;
-    else if (data_[ind]->Find(strAVX) != 0) return;
+    if (data_[ind] == nullptr) data_[ind] = new TData;
+    //else if (data_[ind]->Find(strAVX) != 0) return;
 
     data_[ind]->Insert(strAVX, 0);
 

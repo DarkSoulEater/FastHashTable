@@ -160,6 +160,7 @@ void ForProfilerTest(const char* file_name) {
 
     ChunkedArray_<StringView> views = CreateStringViews(buffer, " []\n\r\t\,.;=-?!\"\'");
     HashTable table(HashPolynom);
+    //HashTable table(HashCRC32);
 
     size_t views_size = 0;
     for (size_t& i = views_size; i < views.GetCapacity(); ++i) {
@@ -174,14 +175,14 @@ void ForProfilerTest(const char* file_name) {
     std::cout << "Number of rows in the dataset: " << views_size   << "\n";
     std::cout << "Number of unique rows: "         << table.Size() << "\n";
 
-    for (size_t i = 0; i < 1000000; ++i) {
+    for (size_t i = 0; i < 10000000; ++i) {
         //size_t rand_dig = rand() % views_size;
         //table.Find(views[rand_dig].data, views[rand_dig].size);
 
         const size_t len = 16;
         char src[len] = "1";
-        for (size_t j = 0; j < len; ++j) {
-            src[j] = rand() % 128 + 1;
+        for (size_t j = 0; j < len / 4; j += 4) {
+            ((int*)src)[j] = rand() + 1;
         }
         table.Find(src, len);
     }

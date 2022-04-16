@@ -3,12 +3,15 @@
 
 #include <ctype.h>
 #include "List.hpp"
+#include "SmallList.hpp"
 #include "ChunkedArray_.hpp"
 
 struct alignas(32) StringAVX;
 
 // Hash table for rows up to 32 in length
 class HashTable {
+    using TData = SmallList<StringAVX>;
+    //using TData = List<StringAVX>;
 public:
     HashTable(size_t (*HashFunc)(const char*));
 
@@ -30,7 +33,7 @@ public:
     inline size_t Size() const noexcept { return size_; }
 
 private:
-    ChunkedArray_<List<StringAVX>*> data_;
+    ChunkedArray_<TData*> data_;
 
     size_t capacity_;
     size_t size_;

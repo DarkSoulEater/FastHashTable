@@ -43,7 +43,7 @@ public:
     void Insert(const T& val, size_t pos) noexcept {
         if (size_ == capacity_) {
             data_.ReserveNewChunk(1);
-            next_.ReserveNewChunk(1);
+            next_.ReserveNewChunk(1);   
             prev_.ReserveNewChunk(1);
 
             free_ = size_;
@@ -145,7 +145,6 @@ public:
         list.Dump();
         return out;
     }
-
 private:
 
 };
