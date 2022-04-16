@@ -22,11 +22,10 @@ static size_t ToNearSimple(size_t val) {
 // --------------------String for AVX (alignas 32)-------------------
 
 struct alignas(32) StringAVX {
-    //char data_[32] = {};
-    __m256i data_;
+    char data_[32] = {};
 
     friend std::ostream& operator<<(std::ostream &out, const StringAVX &str) {
-        //std::cout << "str = " << str.data_; // TODO: 
+        std::cout << "str = " << str.data_;
         return out;
     }
 
@@ -35,12 +34,10 @@ struct alignas(32) StringAVX {
         //assert((size_t)data_ % 32 == 0);
         //assert((size_t)other.data_ % 32 == 0);
 
-        //__m256i a = _mm256_load_si256((__m256i const*)data_);
-        //__m256i b = _mm256_load_si256((__m256i const*)other.data_);
+        __m256i a = _mm256_load_si256((__m256i const*)data_);
+        __m256i b = _mm256_load_si256((__m256i const*)other.data_);
 
-        //__m256i res = _mm256_cmpeq_epi8(a, b);
-
-        __m256i res = _mm256_cmpeq_epi8(data_, other.data_);
+        __m256i res = _mm256_cmpeq_epi8(a, b);
 
         return (_mm256_movemask_epi8(res) + 1) == 0;
     }
@@ -67,9 +64,9 @@ void HashTable::Insert(const char* str, size_t len) noexcept {
     assert(str);
 
     StringAVX strAVX;
-    memcpy(&strAVX.data_, str, len);
+    memcpy(strAVX.data_, str, len);
 
-    size_t ind = HashFunc_((const char*)&strAVX.data_) % capacity_;
+    size_t ind = HashFunc_(strAVX.data_) % capacity_;
     if (data_[ind] == nullptr) data_[ind] = new TData;
     //else if (data_[ind]->Find(strAVX) != 0) return;
 
@@ -87,9 +84,9 @@ bool HashTable::Find(const char* str, size_t len) const noexcept {
     assert(str);
 
     StringAVX strAVX;
-    memcpy(&strAVX.data_, str, len);
+    memcpy(strAVX.data_, str, len);
 
-    size_t ind = HashFunc_((const char*)&strAVX.data_) % capacity_;
+    size_t ind = HashFunc_(strAVX.data_) % capacity_;
     if (data_[ind] == nullptr) return false;
     
     return data_[ind]->Find(strAVX) != 0;
