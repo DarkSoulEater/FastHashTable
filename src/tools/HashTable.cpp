@@ -39,6 +39,9 @@ struct alignas(32) StringAVX {
 
         __m256i res = _mm256_cmpeq_epi8(a, b);
 
+        //uint64_t* ptr = (uint64_t*) &res;
+        //return ptr[0] + ptr[1] + ptr[2] + ptr[3] + 4 == 0;
+
         return (_mm256_movemask_epi8(res) + 1) == 0;
     }
 };
@@ -68,7 +71,7 @@ void HashTable::Insert(const char* str, size_t len) noexcept {
 
     size_t ind = HashFunc_(strAVX.data_) % capacity_;
     if (data_[ind] == nullptr) data_[ind] = new TData;
-    //else if (data_[ind]->Find(strAVX) != 0) return;
+    else if (data_[ind]->Find(strAVX) != 0) return;
 
     data_[ind]->Insert(strAVX, 0);
 

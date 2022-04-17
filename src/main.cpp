@@ -71,6 +71,26 @@ static size_t HashCRC32(const char* val) {
     return (size_t)hash;
 }
 
+size_t HashCRC32Asm(const char* val) {
+    size_t hash = 0;
+    __asm__ (".intel_syntax noprefix\n\t"
+        //"mov rcx, 25\n\t"
+        "mov rcx, 4\n\t"
+        "0:\n\t"
+        "mov rax, [%[arg_val]]\n\t"
+        "crc32 %[ret_val], rax\n\t"
+        //"inc %[arg_val]\n\t"
+        "add %[arg_val], 8\n\t"
+        "loop 0b\n\t"
+        "1:\n\t"
+        ".att_syntax prefix\n\t"
+        : [ret_val]"=S"(hash)
+        : [arg_val]"D"(val)
+        :"%rax", "%rcx", "cc"
+    );
+    return hash;
+}
+
 struct HashFunc {
     size_t(*f)(const char*);
     const char* path;
@@ -159,8 +179,9 @@ void ForProfilerTest(const char* file_name) {
     }
 
     ChunkedArray_<StringView> views = CreateStringViews(buffer, " []\n\r\t\,.;=-?!\"\'");
-    HashTable table(HashPolynom);
+    //HashTable table(HashPolynom);
     //HashTable table(HashCRC32);
+    HashTable table(HashCRC32Asm);
 
     size_t views_size = 0;
     for (size_t& i = views_size; i < views.GetCapacity(); ++i) {
@@ -191,6 +212,11 @@ void ForProfilerTest(const char* file_name) {
 }
 
 int main() {
+    char text[32] = "dawfwawdwadaw";
+    std::cout << (size_t)(text+1) << "\n";
+    std::cout << (int)*(char*)(text+2) << "\n";
+    //std::cout << HashCRC32Asm(text);
+    //return 0;
     //CreateHashTablesStatCSV("assets/text/romeo-i-dzhuletta.txt");
     ForProfilerTest("C:/Users/eleno/C++/FastHashTable/assets/text/big.txt");
     //ForProfilerTest("assets/text/romeo-i-dzhuletta.txt");
