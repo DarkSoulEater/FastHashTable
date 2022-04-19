@@ -51,7 +51,7 @@ struct alignas(32) StringAVX {
 // --------------------------HashTable-------------------------------
 
 HashTable::HashTable(size_t (*HashFunc)(const char*)) : capacity_(0), size_(0), occupancy_(0), HashFunc_(HashFunc) {
-    data_.ReserveChunk(32);
+    data_.ReserveChunk(1000);
     capacity_ = ToNearSimple(data_.GetCapacity());
     for (size_t i = 0; i < capacity_; ++i) {
         data_[i] = nullptr;

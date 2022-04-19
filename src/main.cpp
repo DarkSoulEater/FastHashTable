@@ -74,12 +74,10 @@ static size_t HashCRC32(const char* val) {
 size_t HashCRC32Asm(const char* val) {
     size_t hash = 0;
     __asm__ (".intel_syntax noprefix\n\t"
-        //"mov rcx, 25\n\t"
         "mov rcx, 4\n\t"
         "0:\n\t"
         "mov rax, [%[arg_val]]\n\t"
         "crc32 %[ret_val], rax\n\t"
-        //"inc %[arg_val]\n\t"
         "add %[arg_val], 8\n\t"
         "loop 0b\n\t"
         "1:\n\t"
@@ -187,7 +185,7 @@ void ForProfilerTest(const char* file_name) {
     for (size_t& i = views_size; i < views.GetCapacity(); ++i) {
         if (views[i].data == nullptr) break;
         if (views[i].size > 32) {
-            std::cout << "Big str: " << views[i].data << " " << views[i].size << "\n";
+            //std::cout << "Big str: " << views[i].data << " " << views[i].size << "\n";
         } else {
             table.Insert(views[i].data, views[i].size);
         }
@@ -196,7 +194,7 @@ void ForProfilerTest(const char* file_name) {
     std::cout << "Number of rows in the dataset: " << views_size   << "\n";
     std::cout << "Number of unique rows: "         << table.Size() << "\n";
 
-    for (size_t i = 0; i < 10000000; ++i) {
+    for (size_t i = 0; i < 100000000; ++i) {
         //size_t rand_dig = rand() % views_size;
         //table.Find(views[rand_dig].data, views[rand_dig].size);
 
@@ -212,14 +210,11 @@ void ForProfilerTest(const char* file_name) {
 }
 
 int main() {
-    char text[32] = "dawfwawdwadaw";
-    std::cout << (size_t)(text+1) << "\n";
-    std::cout << (int)*(char*)(text+2) << "\n";
-    //std::cout << HashCRC32Asm(text);
-    //return 0;
     //CreateHashTablesStatCSV("assets/text/romeo-i-dzhuletta.txt");
+
     ForProfilerTest("C:/Users/eleno/C++/FastHashTable/assets/text/big.txt");
-    //ForProfilerTest("assets/text/romeo-i-dzhuletta.txt");
+    //ForProfilerTest("C:/Users/eleno/C++/FastHashTable/assets/text/ID-Tweet.txt");
+    //ForProfilerTest("assets/text/romeo-i-dzhuletta.txt"); 
     return 0;
 }
 
